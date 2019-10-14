@@ -18,6 +18,19 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="DataClass.cpp" />
+    <ClCompile Include="KnnAlgorithm.cpp" />
+    <ClCompile Include="LoadCSV.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Preprocessing.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DataClass.h" />
+    <ClInclude Include="KnnAlgorithm.h" />
+    <ClInclude Include="LoadCSV.h" />
+    <ClInclude Include="Preprocessing.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{3798393F-4CB3-46F6-B054-BA1BBE047BB2}</ProjectGuid>
@@ -114,19 +127,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\lab1-cppAlgorithm\DataClass.h" />
-    <ClInclude Include="..\..\lab1-cppAlgorithm\KnnAlgorithm.h" />
-    <ClInclude Include="..\..\lab1-cppAlgorithm\LoadCSV.h" />
-    <ClInclude Include="..\..\lab1-cppAlgorithm\Preprocessing.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\lab1-cppAlgorithm\DataClass.cpp" />
-    <ClCompile Include="..\..\lab1-cppAlgorithm\KnnAlgorithm.cpp" />
-    <ClCompile Include="..\..\lab1-cppAlgorithm\LoadCSV.cpp" />
-    <ClCompile Include="..\..\lab1-cppAlgorithm\Main.cpp" />
-    <ClCompile Include="..\..\lab1-cppAlgorithm\Preprocessing.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

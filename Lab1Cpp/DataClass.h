@@ -7,7 +7,7 @@ public:
 
 	float **data;
 	int rows = 6000;
-	int columns = 729;
+	int columns = 785;
 
 	float *label;
 };

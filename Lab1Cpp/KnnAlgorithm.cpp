@@ -51,11 +51,11 @@ void KnnAlgorithm::SplitData(float **data, int percent)
 		}
 	}
 
-	for (int i = dataTrainRows; i < dataTrainRows + dataTestRows; i++)
+	for (int i = 0; i <dataTestRows; i++)
 	{
 		for (int j = 0; j < columns; j++)
 		{
-			testData[i][j] = data[i][j];
+			testData[i][j] = data[i + dataTrainRows][j];
 		}
 	}
 

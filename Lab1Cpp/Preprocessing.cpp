@@ -19,33 +19,31 @@ Preprocessing::~Preprocessing()
 
 void Preprocessing::Normalization(float **data, int rows, int columns)
 {
-	float *min, *max;
-
-	min = (float*)malloc(columns * sizeof(float));
-	max = (float*)malloc(columns * sizeof(float));
+	int min = 0, max = 0;
+	int i = 0, j = 0;
 
 
-	for (int i = 0; i < rows; i++)
+	for (int i = 1; i < columns-1; i++)
 	{
-		for (int j = 0; j < columns; j++)
+		min = 0;
+		max = 0;
+		for (int j = 0; j < rows; j++)
 		{
-			if (data[i][j] < min[j])
+			if (data[j][i] < min)
 			{
-				min[j] = data[i][j];
+				min = data[j][i];
 			}
 
-			if (data[i][j] > max[j])
+			if (data[j][i] > max)
 			{
-				max[j] = data[i][j];
+				max = data[j][i];
 			}
 		}
-	}
 
-	for (int i = 0; i < rows; i++)
-	{
-		for (int j = 0; j < columns; j++)
+		for (int j = 0; j < rows; j++)
 		{
-			data[i][j] = (data[i][j] - min[j]) / (max[j] - min[j]);
+			if (min != 0 || max != 0)
+				data[j][i] = (data[j][i] - min) / (max - min);
 		}
 	}
 }
@@ -61,20 +59,20 @@ void Preprocessing::Standarization(float **data, int rows, int columns)
 
 	for (i = 0; i < rows; i++)
 	{
-		for (j = 0; j < columns; j++)
+		for (j = 1; j < columns; j++)
 		{
 			amount[j] = amount[j] + data[i][j];
 		}
 	}
 
-	for (int j = 0; j < columns; j++)
+	for (int j = 1; j < columns; j++)
 	{
 		average[j] = amount[j] / 60000;
 	}
 
 	for (int i = 0; i < rows; i++)
 	{
-		for (int j = 0; j < columns; j++)
+		for (int j = 1; j < columns; j++)
 		{
 			variance[j] = variance[j] + pow(data[i][j] - average[j], 2);
 		}
@@ -82,7 +80,7 @@ void Preprocessing::Standarization(float **data, int rows, int columns)
 
 	for (int i = 0; i < rows; i++)
 	{
-		for (int j = 0; j < columns; j++)
+		for (int j = 1; j < columns; j++)
 		{
 			data[i][j] = (data[i][j] - average[j]) / sqrt(variance[j]);
 		}
