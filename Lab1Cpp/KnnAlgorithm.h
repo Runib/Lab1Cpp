@@ -23,7 +23,6 @@ private:
 	void ShuffleData(float **data);
 
 
-	float *EuklidesMetric(float row);
-	int classify(float *metric);
+	int EuklidesMetric(float row);
 };
 

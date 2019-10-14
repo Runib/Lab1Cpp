@@ -4,6 +4,9 @@
 #include <algorithm>
 #include <iostream>
 #include <random>
+#include <limits>
+#include <cmath>
+#include <omp.h>
 
 using namespace std;
 
@@ -66,19 +69,24 @@ void KnnAlgorithm::SplitData(float **data, int percent)
 float KnnAlgorithm::accuracy()
 {
 	float goodChoice = 0;
+	int i = 0;
+	int nr_threads = 1;
 
-	for (int i = 0; i < dataTrainRows; i++)
+	#pragma omp parallel default(none) private(i, j, metric, amount, searchRow) shared(trainData, dataTrainRows, columns, nr_threads) num_threads(nr_threads)
+	#pragma omp for schedule(dynamic, nr_threads)
+	for (i = 0; i < dataTrainRows; i++)
 	{
-		if (labelTrainData[classify(EuklidesMetric(i))] == labelTrainData[i])
-			goodChoice++;
+		if (labelTrainData[(EuklidesMetric(i))] == labelTrainData[i])
+			goodChoice = goodChoice + 1;
 	}
 
 	return goodChoice / float(dataTrainRows);
 }
 
-float *KnnAlgorithm::EuklidesMetric(float row)
+int KnnAlgorithm::EuklidesMetric(float row)
 {
-	float *metric = (float*)malloc(dataTrainRows * sizeof(float));
+	float metric = std::numeric_limits<float>::max();
+	float searchRow = 0;
 	float amount;
 
 	int myRow = int(row);
@@ -94,22 +102,14 @@ float *KnnAlgorithm::EuklidesMetric(float row)
 		{
 			amount = amount + pow(trainData[i][j] - trainData[myRow][j], 2);
 		}
-		metric[i] = sqrt(amount);
+
+		if (metric > sqrt(amount))
+		{
+			metric = sqrt(amount);
+			searchRow = i;
+		}
+		
 	}
 
-	return metric;
-}
-
-int KnnAlgorithm::classify(float *metric)
-{
-	float min = metric[0];
-	int i = 0;
-
-	for (int i = 1; i < dataTrainRows; i++)
-	{
-		if (metric[i] < min)
-			return i;
-	}
-
-	return i;
+	return searchRow;
 }
