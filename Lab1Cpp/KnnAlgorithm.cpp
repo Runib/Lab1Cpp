@@ -72,6 +72,10 @@ float KnnAlgorithm::accuracy()
 	int i = 0;
 	int nr_threads = 1;
 
+	double start, end;
+
+	start = omp_get_wtime();
+
 	#pragma omp parallel default(none) private(i, j, metric, amount, searchRow) shared(trainData, dataTrainRows, columns, nr_threads) num_threads(nr_threads)
 	#pragma omp for schedule(dynamic, nr_threads)
 	for (i = 0; i < dataTrainRows; i++)
@@ -79,6 +83,10 @@ float KnnAlgorithm::accuracy()
 		if (labelTrainData[(EuklidesMetric(i))] == labelTrainData[i])
 			goodChoice = goodChoice + 1;
 	}
+
+	end = omp_get_wtime();
+
+	printf("Czas obliczen: %f.\n", end - start);
 
 	return goodChoice / float(dataTrainRows);
 }
