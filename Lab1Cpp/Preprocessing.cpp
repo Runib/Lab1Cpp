@@ -17,7 +17,7 @@ Preprocessing::~Preprocessing()
 }
 
 
-void Preprocessing::Normalization(float **data, int rows, int columns)
+float **Preprocessing::Normalization(float **data, int rows, int columns)
 {
 	int min = 0, max = 0;
 	int i = 0, j = 0;
@@ -46,6 +46,11 @@ void Preprocessing::Normalization(float **data, int rows, int columns)
 				data[j][i] = (data[j][i] - min) / (max - min);
 		}
 	}
+
+	printf("Dane1: %f", data[2500][550]);
+	printf("Dane2: %f", data[500][550]);
+
+	return data;
 }
 
 void Preprocessing::Standarization(float **data, int rows, int columns)

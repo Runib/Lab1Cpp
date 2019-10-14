@@ -65,7 +65,7 @@ void KnnAlgorithm::SplitData(float **data, int percent)
 
 float KnnAlgorithm::accuracy()
 {
-	int goodChoice = 0;
+	float goodChoice = 0;
 
 	for (int i = 0; i < dataTrainRows; i++)
 	{
@@ -73,7 +73,7 @@ float KnnAlgorithm::accuracy()
 			goodChoice++;
 	}
 
-	return goodChoice / dataTrainRows;
+	return goodChoice / float(dataTrainRows);
 }
 
 float *KnnAlgorithm::EuklidesMetric(float row)
