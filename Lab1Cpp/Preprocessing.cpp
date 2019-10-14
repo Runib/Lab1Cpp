@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <fstream>
 #include <sstream>
+#include <omp.h>
+#include <time.h>
 
 
 
@@ -16,13 +18,16 @@ Preprocessing::~Preprocessing()
 {
 }
 
-
 float **Preprocessing::Normalization(float **data, int rows, int columns)
 {
+	time_t begin_t, end_t;
 	int min = 0, max = 0;
 	int i = 0, j = 0;
 
+	begin_t = time(NULL);
 
+	#pragma omp parallel default(none) private(i, j, min, max) shared(data, rows, columns)
+	#pragma omp for schedule(static, 4)
 	for (int i = 1; i < columns-1; i++)
 	{
 		min = 0;
@@ -47,8 +52,9 @@ float **Preprocessing::Normalization(float **data, int rows, int columns)
 		}
 	}
 
-	printf("Dane1: %f", data[2500][550]);
-	printf("Dane2: %f", data[500][550]);
+	end_t = time(NULL);
+
+	printf("Czas obliczen: %f.\n", difftime(end_t, begin_t));
 
 	return data;
 }
