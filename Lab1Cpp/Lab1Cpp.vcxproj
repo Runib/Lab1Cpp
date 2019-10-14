@@ -115,6 +115,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\lab1-cppAlgorithm\DataClass.h" />
+    <ClInclude Include="..\..\lab1-cppAlgorithm\KnnAlgorithm.h" />
+    <ClInclude Include="..\..\lab1-cppAlgorithm\LoadCSV.h" />
+    <ClInclude Include="..\..\lab1-cppAlgorithm\Preprocessing.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\lab1-cppAlgorithm\DataClass.cpp" />
+    <ClCompile Include="..\..\lab1-cppAlgorithm\KnnAlgorithm.cpp" />
+    <ClCompile Include="..\..\lab1-cppAlgorithm\LoadCSV.cpp" />
+    <ClCompile Include="..\..\lab1-cppAlgorithm\Main.cpp" />
+    <ClCompile Include="..\..\lab1-cppAlgorithm\Preprocessing.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
