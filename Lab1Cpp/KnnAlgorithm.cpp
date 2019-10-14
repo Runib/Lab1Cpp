@@ -90,7 +90,7 @@ float *KnnAlgorithm::EuklidesMetric(float row)
 		if (i == myRow)
 			continue;
 
-		for (int j = 0; j < columns; j++)
+		for (int j = 1; j < columns; j++)
 		{
 			amount = amount + pow(trainData[i][j] - trainData[myRow][j], 2);
 		}

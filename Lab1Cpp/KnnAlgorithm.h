@@ -5,7 +5,7 @@ public:
 	KnnAlgorithm();
 	~KnnAlgorithm();
 
-	int columns = 729;
+	int columns = 785;
 	int k = 1;
 
 	int dataTrainRows = 4500;
