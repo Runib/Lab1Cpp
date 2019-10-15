@@ -57,7 +57,7 @@ float **Preprocessing::Normalization(float **data, int rows, int columns)
 
 	end = omp_get_wtime();
 
-	printf("Czas obliczen: %f.\n", end - start);
+	printf("Czas obliczen normalizacja: %f.\n", end - start);
 
 	return data;
 }
@@ -83,7 +83,7 @@ float **Preprocessing::Standarization(float **data, int rows, int columns)
 			amo = amo + data[j][i];
 		}
 		ave = amo / float(rows);
-		printf("Srednia: %f \n", ave);
+		
 
 		for (j = 0; j < rows; j++)
 		{
@@ -91,7 +91,7 @@ float **Preprocessing::Standarization(float **data, int rows, int columns)
 		}
 		var = var / float(rows);
 
-		for (j = 0; j < rows; j++)
+		for (j = 0; j < rows; ++j)
 		{
 			data[j][i] = (data[j][i] - ave) / sqrt(var);
 		}
@@ -100,7 +100,7 @@ float **Preprocessing::Standarization(float **data, int rows, int columns)
 
 	end = omp_get_wtime();
 
-	printf("Czas obliczen: %f.\n", end - start);
+	printf("Czas obliczen standaryzacja: %f.\n", end - start);
 
 	return data;
 }
