@@ -71,7 +71,7 @@ float **Preprocessing::Standarization(float **data, int rows, int columns)
 
 	start = omp_get_wtime();
 
-	#pragma omp parallel default(none) private(i, j, min, max) shared(data, rows, columns, nr_threads) num_threads(nr_threads)
+	#pragma omp parallel default(none) private(i, j, amo, var, ave) shared(data, rows, columns, nr_threads) num_threads(nr_threads)
 	#pragma omp for schedule(dynamic, nr_threads)
 	for (i = 1; i < columns - 1; i++)
 	{
