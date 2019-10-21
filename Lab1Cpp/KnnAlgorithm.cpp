@@ -25,9 +25,13 @@ void KnnAlgorithm::fit(DataClass data, int percent) {
 float KnnAlgorithm::predict(int numberOfThreads) {
 	int accurate_predictions = 0;
 	float max_float = std::numeric_limits<float>::max();
+	double start, end;
+	int current_test_row;
 
-	#pragma omp parallel default(none) private() shared(max_float, numberOfThreads) num_threads(numberOfThreads) \
-		reduction(+ : accurate_predictions)
+	start = omp_get_wtime();
+	#pragma omp parallel default(none) private(current_test_row) \
+	shared(max_float, numberOfThreads) num_threads(numberOfThreads) \
+	reduction(+ : accurate_predictions)
 	for (int current_test_row = 0; current_test_row < dataTestRows; current_test_row++) {
 		int closest_neighbour_index;
 		float closest_neighbour_distance = max_float;
@@ -55,6 +59,9 @@ float KnnAlgorithm::predict(int numberOfThreads) {
 			accurate_predictions += 1;
 		}
 	}
+	end = omp_get_wtime();
+
+	printf("Czas obliczen KnnAlgorytm: %f.\n", end - start);
 
 	return (accurate_predictions / float(dataTestRows)) * 100;
 }
