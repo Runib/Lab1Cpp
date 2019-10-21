@@ -4,6 +4,10 @@
 #include <stdlib.h>
 #include <fstream>
 #include <sstream>
+#include <omp.h>
+#include <time.h>
+#include <cmath>
+
 
 
 
@@ -16,13 +20,17 @@ Preprocessing::~Preprocessing()
 {
 }
 
-
 float **Preprocessing::Normalization(float **data, int rows, int columns)
 {
+	double start, end;
 	int min = 0, max = 0;
 	int i = 0, j = 0;
+	int nr_threads = 1;
 
+	//start = omp_get_wtime();
 
+	//#pragma omp parallel default(none) private(i, j, min, max) shared(data, rows, columns, nr_threads) num_threads(nr_threads)
+	//#pragma omp for schedule(dynamic, nr_threads)
 	for (int i = 1; i < columns-1; i++)
 	{
 		min = 0;
@@ -47,49 +55,60 @@ float **Preprocessing::Normalization(float **data, int rows, int columns)
 		}
 	}
 
-	printf("Dane1: %f", data[2500][550]);
-	printf("Dane2: %f", data[500][550]);
+	//end = omp_get_wtime();
+
+	//printf("Czas obliczen: %f.\n", end - start);
 
 	return data;
 }
 
-void Preprocessing::Standarization(float **data, int rows, int columns)
+float **Preprocessing::Standarization(float **data, int rows, int columns)
 {
-	float *amount, *variance;
-	int i, j;
+	double start, end;
+	float amo = 0, var = 0, ave = 0;
+	int nr_threads = 1;
+	int i = 0, j = 0;
 
-	float *average = (float*)malloc(columns * sizeof(float));
-	amount = (float*)malloc(columns * sizeof(float));
-	variance = (float*)malloc(columns * sizeof(float));
+	//start = omp_get_wtime();
 
-	for (i = 0; i < rows; i++)
+	//#pragma omp parallel default(none) private(i, j, min, max) shared(data, rows, columns, nr_threads) num_threads(nr_threads)
+	//#pragma omp for schedule(dynamic, nr_threads)
+	for (i = 1; i < columns - 1; i++)
 	{
-		for (j = 1; j < columns; j++)
+		ave = 0;
+		var = 0;
+		amo = 0;
+		for (j = 0; j < rows; j++)
 		{
-			amount[j] = amount[j] + data[i][j];
+			amo = amo + data[j][i];
 		}
-	}
+		ave = amo / float(rows);
+		//printf("Srednia: %f \n", ave);
 
-	for (int j = 1; j < columns; j++)
-	{
-		average[j] = amount[j] / 60000;
-	}
-
-	for (int i = 0; i < rows; i++)
-	{
-		for (int j = 1; j < columns; j++)
+		for (j = 0; j < rows; j++)
 		{
-			variance[j] = variance[j] + pow(data[i][j] - average[j], 2);
+			var = var + pow(data[j][i] - ave, 2);
 		}
+		var = var / float(rows);
+
+		for (j = 0; j < rows; j++)
+		{
+		    float sd = sqrt(var);
+		   // sd == 0 => divide by zero
+		    if(sd != 0) {
+                data[j][i] = (data[j][i] - ave) / sd;
+		    } else {
+		        data[j][i] = 0;
+		    }
+		}
+
 	}
 
-	for (int i = 0; i < rows; i++)
-	{
-		for (int j = 1; j < columns; j++)
-		{
-			data[i][j] = (data[i][j] - average[j]) / sqrt(variance[j]);
-		}
-	}
+	//end = omp_get_wtime();
+
+	//printf("Czas obliczen: %f.\n", end - start);
+
+	return data;
 }
 
 

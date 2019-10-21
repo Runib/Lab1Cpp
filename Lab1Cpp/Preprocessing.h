@@ -7,6 +7,6 @@ public:
 
 	float **Normalization(float **data, int rows, int columns);
 
-	void Standarization(float **data, int rows, int columns);
+	float **Standarization(float **data, int rows, int columns);
 };
 

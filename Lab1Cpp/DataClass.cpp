@@ -1,6 +1,7 @@
 #include "DataClass.h"
 #include <stdlib.h>
-
+#include "DataClass.h"
+#include <iostream>
 
 
 DataClass::DataClass()
@@ -18,4 +19,12 @@ DataClass::DataClass()
 
 DataClass::~DataClass()
 {
+}
+
+void DataClass::print_data() {
+    for(int i=0; i<rows; i++) {
+        for(int j=0; j<columns; j++) {
+            std::cout << "j: " <<  j << " , i:" << i << " , data:" << data[i][j] << std::endl;
+        }
+    }
 }

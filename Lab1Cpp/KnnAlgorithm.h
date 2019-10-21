@@ -5,7 +5,7 @@ public:
 	KnnAlgorithm();
 	~KnnAlgorithm();
 
-	int columns = 729;
+	int columns = 784;
 	int k = 1;
 
 	int dataTrainRows = 4500;
@@ -23,7 +23,6 @@ private:
 	void ShuffleData(float **data);
 
 
-	float *EuklidesMetric(float row);
-	int classify(float *metric);
+	int EuklidesMetric(float row);
 };
 
