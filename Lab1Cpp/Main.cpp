@@ -13,10 +13,11 @@ int main()
 	Preprocessing preprocessing = Preprocessing();
 	KnnAlgorithm knnAlg = KnnAlgorithm();
 
+	int numberOfThreads = 1;
 	loadData.myLoad(ourDataMnist.data, ourDataMnist.rows, ourDataMnist.columns);
-	preprocessing.Normalization(ourDataMnist.data, ourDataMnist.rows, ourDataMnist.columns, 1);
+	preprocessing.Normalization(ourDataMnist.data, ourDataMnist.rows, ourDataMnist.columns, numberOfThreads);
 	knnAlg.fit(ourDataMnist, 75);
-	float acc = knnAlg.predict();
+	float acc = knnAlg.predict(numberOfThreads);
 	printf("%f", acc);
 
 

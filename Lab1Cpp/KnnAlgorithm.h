@@ -7,7 +7,7 @@ public:
 	~KnnAlgorithm();
 
 	void fit(DataClass data, int percent);
-	float predict();
+	float predict(int numberOfThreads);
 	float **trainData;
 	float **testData;
 	int dataTrainRows;

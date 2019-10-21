@@ -35,8 +35,14 @@ void Preprocessing::Normalization(float **data, int rows, int columns, int numbe
 		max = 0;
 		for (int j = 0; j < rows; j++)
 		{
-			min = findMin(data[j][i], min);
-			max = findMax(data[j][i], max);
+			if (data[j][i] < min)
+			{
+				min = data[j][i];
+			}
+			if (data[j][i] > max)
+			{
+				max = data[j][i];
+			}
 		}
 
 		for (int j = 0; j < rows; j++)
@@ -57,15 +63,27 @@ void Preprocessing::Standarization(float **data, int rows, int columns, int numb
 	double start, end;
 	float variance = 0, average = 0;
 	int i = 0, j = 0;
+	float amo = 0, var = 0, ave = 0;
 
 	start = omp_get_wtime();
 
-	#pragma omp parallel default(none) private(i, j, variance, average) shared(data, rows, columns, numberOfThreads) num_threads(numberOfThreads)
-	#pragma omp for schedule(dynamic, nr_threads)
-	for (i = 1; i < columns; i++, average = 0, variance = 0)
+	//#pragma omp parallel default(none) private(i, j, variance, average) shared(data, rows, columns, numberOfThreads) num_threads(numberOfThreads)
+	//#pragma omp for schedule(dynamic, nr_threads)
+	for (i = 1; i < columns - 1; i++)
 	{
-		average = getAverage(data, rows, i);
-		variance = getVariance(data, rows, i, average);
+		ave = 0;
+		var = 0;
+		amo = 0;
+		for (j = 0; j < rows; j++)
+		{
+			amo = amo + data[j][i];
+		}
+		ave = amo / float(rows);
+		for (j = 0; j < rows; j++)
+		{
+			var = var + pow(data[j][i] - ave, 2);
+		}
+		var = var / float(rows);
 		
 		for (j = 0; j < rows; ++j)
 		{
@@ -81,41 +99,3 @@ void Preprocessing::Standarization(float **data, int rows, int columns, int numb
 
 	printf("Czas obliczen standaryzacja: %f.\n", end - start);
 }
-
-float Preprocessing::findMin(float data, float currentMin)
-{
-	if (data < currentMin)
-		return data;
-	else return currentMin;
-}
-
-float Preprocessing::findMax(float data, float currentMax)
-{
-	if (data > currentMax)
-		return data;
-	else return currentMax;
-}
-
-float Preprocessing::getAverage(float ** data, int rows, int currentlyColumns)
-{
-	float amount = 0;
-
-	for (int j = 0; j < rows; j++)
-	{
-		amount = amount + data[j][currentlyColumns];
-	}
-	return amount / float(rows);
-}
-
-float Preprocessing::getVariance(float ** data, int rows, int currentlyColumns, float average)
-{
-	float variance = 0;
-	for (int j = 0; j < rows; j++)
-	{
-		variance = variance + pow(data[j][currentlyColumns] - average, 2);
-	}
-	return variance / float(rows);
-}
-
-
-

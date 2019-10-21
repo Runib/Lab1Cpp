@@ -22,32 +22,24 @@ void KnnAlgorithm::fit(DataClass data, int percent) {
 	testData = &data.data[dataTrainRows];
 }
 
-float KnnAlgorithm::predict() {
+float KnnAlgorithm::predict(int numberOfThreads) {
 	int accurate_predictions = 0;
 	float max_float = std::numeric_limits<float>::max();
-	double start, end;
-	int numberOfThreads = 1, i, current_test_row, j, closest_neighbour_index;;
-	float sum, distance;
-	float closest_neighbour_distance;
 
-	start = omp_get_wtime();
-
-	#pragma omp parallel default(none) private(current_test_row, closest_neighbour_distance, distance) \
-	 shared(numberOfThreads, dataTestRows, dataColumns, trainData, testData) num_threads(numberOfThreads) \
-	reduction(+ : accurate_predictions)
-	for (current_test_row = 0; current_test_row < dataTestRows; current_test_row++) {
-		closest_neighbour_distance = max_float;
+	for (int current_test_row = 0; current_test_row < dataTestRows; current_test_row++) {
+		int closest_neighbour_index;
+		float closest_neighbour_distance = max_float;
 		// for each row in train dataset
-		for (i = 0; i < dataTrainRows; i++) {
+		for (int i = 0; i < dataTrainRows; i++) {
 
 			// calculate eucidlean metric and get the closest one
-			sum = 0;
-			for (j = 1; j < dataColumns; j++) {
+			float sum = 0;
+			for (int j = 1; j < dataColumns; j++) {
 				float difference = trainData[i][j] - testData[current_test_row][j];
 				sum += difference * difference;
 			}
 			// distance is euclidlean metric for current_test_row and i-th train data
-			distance = sqrt(sum);
+			float distance = sqrt(sum);
 			// if our data is closer to that row from train data update closest_neighbour_distance and and closest_neighbour_index
 			if (distance < closest_neighbour_distance) {
 				closest_neighbour_distance = distance;
@@ -61,10 +53,6 @@ float KnnAlgorithm::predict() {
 			accurate_predictions += 1;
 		}
 	}
-
-	end = omp_get_wtime();
-
-	printf("Czas obliczen normalizacja: %f.\n", end - start);
 
 	return (accurate_predictions / float(dataTestRows)) * 100;
 }
