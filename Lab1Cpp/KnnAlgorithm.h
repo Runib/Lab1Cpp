@@ -1,28 +1,17 @@
 #pragma once
+#include "DataClass.h"
 class KnnAlgorithm
 {
 public:
 	KnnAlgorithm();
 	~KnnAlgorithm();
 
-	int columns = 785;
-	int k = 1;
-
-	int dataTrainRows = 4500;
-	int dataTestRows = 1500;
-
+	void fit(DataClass data, int percent);
+	float predict();
 	float **trainData;
 	float **testData;
+	int dataTrainRows;
+	int dataTestRows;
+	int dataColumns;
 
-	float *labelTrainData;
-	float *labelTestData;
-	float accuracy();
-
-	void SplitData(float **data, int percent);
-private:
-	void ShuffleData(float **data);
-
-
-	int EuklidesMetric(float row);
 };
-

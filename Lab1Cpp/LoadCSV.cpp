@@ -18,28 +18,27 @@ LoadCSV::~LoadCSV()
 
 void LoadCSV::myLoad(float **data, int rows, int columns)
 {
-	int i, j, k;
+	int i, j;
+	string val;
+	string line;
 
 
 	ifstream file("mnist_train.csv");
 
-	for (i = 0; i < rows; ++i)
+	for (i = 0; i < rows; i++)
 	{
-		string line;
 		getline(file, line);
 		if (!file.good())
 			break;
 		stringstream iss(line);
 
-		for (j = 0; j < columns; ++j)
+		for (j = 0; j < columns; j++)
 		{
-			string val;
 			getline(iss, val, ',');
 			if (!iss.good())
 				break;
 
-			stringstream convertor(val);
-			convertor >> data[i][j];
+			data[i][j] = atof(val.c_str());
 		}
 	}
 }

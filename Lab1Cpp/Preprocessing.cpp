@@ -20,32 +20,23 @@ Preprocessing::~Preprocessing()
 {
 }
 
-float **Preprocessing::Normalization(float **data, int rows, int columns)
+void Preprocessing::Normalization(float **data, int rows, int columns, int numberOfThreads)
 {
 	double start, end;
-	int min = 0, max = 0;
+	float min = 0, max = 0;
 	int i = 0, j = 0;
-	int nr_threads = 1;
 
 	start = omp_get_wtime();
 
-	#pragma omp parallel default(none) private(i, j, min, max) shared(data, rows, columns, nr_threads) num_threads(nr_threads)
-	#pragma omp for schedule(dynamic, nr_threads)
-	for (int i = 1; i < columns-1; i++)
+	#pragma omp parallel default(none) private(i, j, min, max) shared(data, rows, columns, numberOfThreads) num_threads(numberOfThreads)
+	for (int i = 1; i < columns; i++)
 	{
 		min = 0;
 		max = 0;
 		for (int j = 0; j < rows; j++)
 		{
-			if (data[j][i] < min)
-			{
-				min = data[j][i];
-			}
-
-			if (data[j][i] > max)
-			{
-				max = data[j][i];
-			}
+			min = findMin(data[j][i], min);
+			max = findMax(data[j][i], max);
 		}
 
 		for (int j = 0; j < rows; j++)
@@ -53,47 +44,35 @@ float **Preprocessing::Normalization(float **data, int rows, int columns)
 			if (min != 0 || max != 0)
 				data[j][i] = (data[j][i] - min) / (max - min);
 		}
+
 	}
 
 	end = omp_get_wtime();
 
 	printf("Czas obliczen normalizacja: %f.\n", end - start);
-
-	return data;
 }
 
-float **Preprocessing::Standarization(float **data, int rows, int columns)
+void Preprocessing::Standarization(float **data, int rows, int columns, int numberOfThreads)
 {
 	double start, end;
-	float amo = 0, var = 0, ave = 0;
-	int nr_threads = 1;
+	float variance = 0, average = 0;
 	int i = 0, j = 0;
 
 	start = omp_get_wtime();
 
-	#pragma omp parallel default(none) private(i, j, amo, var, ave) shared(data, rows, columns, nr_threads) num_threads(nr_threads)
+	#pragma omp parallel default(none) private(i, j, variance, average) shared(data, rows, columns, numberOfThreads) num_threads(numberOfThreads)
 	#pragma omp for schedule(dynamic, nr_threads)
-	for (i = 1; i < columns - 1; i++)
+	for (i = 1; i < columns; i++, average = 0, variance = 0)
 	{
-		ave = 0;
-		var = 0;
-		amo = 0;
-		for (j = 0; j < rows; j++)
-		{
-			amo = amo + data[j][i];
-		}
-		ave = amo / float(rows);
+		average = getAverage(data, rows, i);
+		variance = getVariance(data, rows, i, average);
 		
-
-		for (j = 0; j < rows; j++)
-		{
-			var = var + pow(data[j][i] - ave, 2);
-		}
-		var = var / float(rows);
-
 		for (j = 0; j < rows; ++j)
 		{
-			data[j][i] = (data[j][i] - ave) / sqrt(var);
+			if (variance != 0)
+				data[j][i] = (data[j][i] - average) / sqrt(variance);
+			else
+				data[j][i] = (data[j][i] / float(255));
 		}
 
 	}
@@ -101,8 +80,42 @@ float **Preprocessing::Standarization(float **data, int rows, int columns)
 	end = omp_get_wtime();
 
 	printf("Czas obliczen standaryzacja: %f.\n", end - start);
-
-	return data;
 }
+
+float Preprocessing::findMin(float data, float currentMin)
+{
+	if (data < currentMin)
+		return data;
+	else return currentMin;
+}
+
+float Preprocessing::findMax(float data, float currentMax)
+{
+	if (data > currentMax)
+		return data;
+	else return currentMax;
+}
+
+float Preprocessing::getAverage(float ** data, int rows, int currentlyColumns)
+{
+	float amount = 0;
+
+	for (int j = 0; j < rows; j++)
+	{
+		amount = amount + data[j][currentlyColumns];
+	}
+	return amount / float(rows);
+}
+
+float Preprocessing::getVariance(float ** data, int rows, int currentlyColumns, float average)
+{
+	float variance = 0;
+	for (int j = 0; j < rows; j++)
+	{
+		variance = variance + pow(data[j][currentlyColumns] - average, 2);
+	}
+	return variance / float(rows);
+}
+
 
 

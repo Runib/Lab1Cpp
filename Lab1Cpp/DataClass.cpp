@@ -11,8 +11,6 @@ DataClass::DataClass()
 
 	for (i = 0; i < rows; i++)
 		data[i] = (float*)malloc(columns * sizeof(float*));
-
-	label = (float*)malloc(rows * sizeof(float));
 }
 
 

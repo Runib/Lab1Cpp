@@ -8,16 +8,17 @@ using namespace std;
 
 int main()
 {
-	DataClass ourData = DataClass();
+	DataClass ourDataMnist = DataClass();
 	LoadCSV loadData = LoadCSV();
 	Preprocessing preprocessing = Preprocessing();
 	KnnAlgorithm knnAlg = KnnAlgorithm();
 
-	loadData.myLoad(ourData.data, ourData.rows, ourData.columns);
-	ourData.data = preprocessing.Normalization(ourData.data, ourData.rows, ourData.columns);
-	knnAlg.SplitData(ourData.data, 75);
-	float acc = knnAlg.accuracy();
+	loadData.myLoad(ourDataMnist.data, ourDataMnist.rows, ourDataMnist.columns);
+	preprocessing.Normalization(ourDataMnist.data, ourDataMnist.rows, ourDataMnist.columns, 1);
+	knnAlg.fit(ourDataMnist, 75);
+	float acc = knnAlg.predict();
 	printf("%f", acc);
+
 
 	return 0;
 }
