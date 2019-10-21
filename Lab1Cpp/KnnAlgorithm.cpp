@@ -26,6 +26,8 @@ float KnnAlgorithm::predict(int numberOfThreads) {
 	int accurate_predictions = 0;
 	float max_float = std::numeric_limits<float>::max();
 
+	#pragma omp parallel default(none) private() shared(max_float, numberOfThreads) num_threads(numberOfThreads) \
+		reduction(+ : accurate_predictions)
 	for (int current_test_row = 0; current_test_row < dataTestRows; current_test_row++) {
 		int closest_neighbour_index;
 		float closest_neighbour_distance = max_float;

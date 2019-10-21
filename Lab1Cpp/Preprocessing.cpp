@@ -29,6 +29,7 @@ void Preprocessing::Normalization(float **data, int rows, int columns, int numbe
 	start = omp_get_wtime();
 
 	#pragma omp parallel default(none) private(i, j, min, max) shared(data, rows, columns, numberOfThreads) num_threads(numberOfThreads)
+	#pragma omp for schedule(dynamic, numberOfThreads)
 	for (int i = 1; i < columns; i++)
 	{
 		min = 0;
@@ -61,14 +62,13 @@ void Preprocessing::Normalization(float **data, int rows, int columns, int numbe
 void Preprocessing::Standarization(float **data, int rows, int columns, int numberOfThreads)
 {
 	double start, end;
-	float variance = 0, average = 0;
 	int i = 0, j = 0;
 	float amo = 0, var = 0, ave = 0;
 
 	start = omp_get_wtime();
 
-	//#pragma omp parallel default(none) private(i, j, variance, average) shared(data, rows, columns, numberOfThreads) num_threads(numberOfThreads)
-	//#pragma omp for schedule(dynamic, nr_threads)
+	#pragma omp parallel default(none) private(i, j, min, max) shared(data, rows, columns, numberOfThreads) num_threads(numberOfThreads)
+	#pragma omp for schedule(dynamic, numberOfThreads)
 	for (i = 1; i < columns - 1; i++)
 	{
 		ave = 0;
@@ -87,8 +87,8 @@ void Preprocessing::Standarization(float **data, int rows, int columns, int numb
 		
 		for (j = 0; j < rows; ++j)
 		{
-			if (variance != 0)
-				data[j][i] = (data[j][i] - average) / sqrt(variance);
+			if (var != 0)
+				data[j][i] = (data[j][i] - ave) / sqrt(var);
 			else
 				data[j][i] = (data[j][i] / float(255));
 		}
