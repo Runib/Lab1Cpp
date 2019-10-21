@@ -27,13 +27,16 @@ float KnnAlgorithm::predict(int numberOfThreads) {
 	float max_float = std::numeric_limits<float>::max();
 	double start, end;
 	int current_test_row;
+	int closest_neighbour_index;
+	float closest_neighbour_distance;
 
 	start = omp_get_wtime();
-	#pragma omp parallel default(none) private(current_test_row) \
-	shared(max_float, numberOfThreads) num_threads(numberOfThreads) \
+	#pragma omp parallel default(none) private(current_test_row, closest_neighbour_index, closest_neighbour_distance) \
+	shared(max_float, numberOfThreads, dataTestRows) num_threads(numberOfThreads) \
 	reduction(+ : accurate_predictions)
+	#pragma omp for schedule(dynamic, numberOfThreads)
 	for (int current_test_row = 0; current_test_row < dataTestRows; current_test_row++) {
-		int closest_neighbour_index;
+		
 		float closest_neighbour_distance = max_float;
 		// for each row in train dataset
 		for (int i = 0; i < dataTrainRows; i++) {
