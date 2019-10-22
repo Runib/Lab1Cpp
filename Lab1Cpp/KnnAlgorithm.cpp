@@ -25,17 +25,17 @@ void KnnAlgorithm::fit(DataClass data, int percent) {
 
 float KnnAlgorithm::predict(int numberOfThreads) {
     int accurate_predictions = 0;
-    const float max_float = std::numeric_limits<float>::max();
+    float max_float = std::numeric_limits<float>::max();
  	double start, end;
     int current_test_row;
     int closest_neighbour_index;
 	float closest_neighbour_distance;
 
-   // start = omp_get_wtime();
-    //#pragma omp parallel default(none) private(current_test_row) shared(max_float, numberOfThreads) num_threads(numberOfThreads) reduction(+ : accurate_predictions)
-    //#pragma omp for schedule(dynamic, numberOfThreads)
+    start = omp_get_wtime();
+    #pragma omp parallel default(none) private(current_test_row, closest_neighbour_distance, closest_neighbour_index) shared(max_float, numberOfThreads) num_threads(numberOfThreads) reduction(+ : accurate_predictions)
+    #pragma omp for schedule(dynamic, numberOfThreads)
     for (int current_test_row=0; current_test_row < dataTestRows; ++current_test_row) {
-        closest_neighbour_distance = max_float;
+        float closest_neighbour_distance = max_float;
         // for each row in train dataset
 
         float* tst = testData + (dataColumns*current_test_row);
@@ -62,7 +62,7 @@ float KnnAlgorithm::predict(int numberOfThreads) {
             accurate_predictions = accurate_predictions + 1;
         }
     }
-    	//end = omp_get_wtime();
- 	//printf("Czas obliczen KnnAlgorytm: %f.\n", end - start);
+    	end = omp_get_wtime();
+ 	printf("Czas obliczen KnnAlgorytm: %f.\n", end - start);
     return (accurate_predictions/float(dataTestRows))*100;
 }

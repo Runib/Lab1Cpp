@@ -27,11 +27,8 @@ void Preprocessing::Normalization(float *data, int rows, int columns, int number
 	int i = 0, j = 0;
 	start = omp_get_wtime();
 
-	//#pragma omp parallel default(none) private(i, j, min, max) shared(data, rows, columns, nr_threads) num_threads(nr_threads)
-	//#pragma omp for schedule(dynamic, nr_threads)
-
-	//#pragma omp parallel default(none) private(i, j, min, max) shared(data, rows, columns, numberOfThreads) num_threads(numberOfThreads)
-	//#pragma omp for schedule(dynamic, numberOfThreads)
+	#pragma omp parallel default(none) private(i, j, min, max) shared(data, rows, columns, numberOfThreads) num_threads(numberOfThreads)
+	#pragma omp for schedule(dynamic, numberOfThreads)
 	for (int i = 1; i < columns-1; i++)
 	{
 		min = 0;
@@ -71,20 +68,8 @@ void Preprocessing::Standarization(float *data, int rows, int columns, int numbe
 	double start, end;
 	int i = 0, j = 0;
     float var = 0, ave = 0, amo=0;
-	start = omp_get_wtime();
 
-	//#pragma omp parallel default(none) private(i, j, min, max) shared(data, rows, columns, nr_threads) num_threads(nr_threads)
-	//#pragma omp for schedule(dynamic, nr_threads)
-
-    //#pragma omp parallel default(none) private(i, j, variance, average) shared(data, rows, columns, numberOfThreads) num_threads(numberOfThreads)
-
-    //#pragma omp parallel default(none) private(i, j, variance, average) shared(data, rows, columns, numberOfThreads) num_threads(numberOfThreads)
-	//#pragma omp for schedule(dynamic, nr_threads)
-
-
-    //#pragma omp parallel default(none) private(i, j, ave, amo, var) shared(data, rows, columns, numberOfThreads) num_threads(numberOfThreads)
-
-    //start = omp_get_wtime();
+    start = omp_get_wtime();
    // #pragma omp parallel default(none) private(i, j, ave, amo, var) shared(data, rows, columns, numberOfThreads) num_threads(numberOfThreads)
 	//#pragma omp for schedule(dynamic, numberOfThreads)
 	for (i = 1; i < columns - 1; i++)

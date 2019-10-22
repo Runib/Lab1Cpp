@@ -15,13 +15,10 @@ int main()
 	Preprocessing preprocessing = Preprocessing();
 	KnnAlgorithm knnAlg = KnnAlgorithm();
 
-    //freopen( "log.txt", "w", stdout );
-    int numberOfThreads = 1;
+    int numberOfThreads = 8;
 	loadData.myLoad(ourData.data, ourData.rows, ourData.columns);
-    //ourData.print_data();
-    //preprocessing.Normalization(ourData.data, ourData.rows, ourData.columns, numberOfThreads);
-	preprocessing.Standarization(ourData.data, ourData.rows, ourData.columns, numberOfThreads);
-    //ourData.print_data();
+    preprocessing.Normalization(ourData.data, ourData.rows, ourData.columns, numberOfThreads);
+	//preprocessing.Standarization(ourData.data, ourData.rows, ourData.columns, numberOfThreads);
 	KnnAlgorithm knn = KnnAlgorithm();
     knn.fit(ourData, 75);
 	float acc = knn.predict(numberOfThreads);
