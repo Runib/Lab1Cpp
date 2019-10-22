@@ -1,115 +1,67 @@
 #include "KnnAlgorithm.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <algorithm>
-#include <iostream>
-#include <random>
-
-using namespace std;
+#include <limits>
+#include <cmath>
+#include <omp.h>
+#include <time.h>
 
 KnnAlgorithm::KnnAlgorithm()
 {
-	
+    //ctor
 }
-
 
 KnnAlgorithm::~KnnAlgorithm()
 {
+    //dtor
 }
 
-void KnnAlgorithm::ShuffleData(float **data)
-{
-	random_device rd;
-	mt19937 g(rd());
+void KnnAlgorithm::fit(DataClass data, int percent) {
+	dataTrainRows = (data.rows * percent)/100;
+	dataColumns = data.columns;
+	dataTestRows = data.rows - dataTrainRows;
+	trainData = data.data;
+	testData = data.data + (dataColumns * dataTrainRows);
 }
 
-void KnnAlgorithm::SplitData(float **data, int percent)
-{
-	dataTrainRows = (6000 * percent)/100;
-	dataTestRows = 6000 - dataTrainRows;
+float KnnAlgorithm::predict(int numberOfThreads) {
+    int accurate_predictions = 0;
+    const float max_float = std::numeric_limits<float>::max();
+ 	double start, end;
+    int current_test_row;
+    int closest_neighbour_index;
+	float closest_neighbour_distance;
 
-	int i;
+    //start = omp_get_wtime();
+    //#pragma omp parallel default(none) private(current_test_row) shared(max_float, numberOfThreads) num_threads(numberOfThreads) reduction(+ : accurate_predictions)
+    //#pragma omp for schedule(dynamic, numberOfThreads)
+    for (int current_test_row=0; current_test_row < dataTestRows; ++current_test_row) {
+        closest_neighbour_distance = max_float;
+        // for each row in train dataset
 
-	trainData = (float**)malloc(dataTrainRows * sizeof(float*));
+        float* tst = testData + (dataColumns*current_test_row);
+        for (int i = 0; i < dataTrainRows; ++i) {
+            float* tr = trainData + (i*dataColumns) + 1;
+            // calculate eucidlean metric and get the closest one
+            float sum = 0;
+            for(int j = 1; j < dataColumns; ++j, ++tr) {
 
-	for (i = 0; i < dataTrainRows; i++)
-		trainData[i] = (float*)malloc(columns * sizeof(float*));
-
-	testData = (float**)malloc(dataTestRows * sizeof(float*));
-
-	for (i = 0; i < dataTestRows; i++)
-		testData[i] = (float*)malloc(columns * sizeof(float*));
-
-	labelTrainData = (float*)malloc(dataTrainRows * sizeof(float*));
-	labelTestData = (float*)malloc(dataTestRows * sizeof(float*));
-
-	for (int i = 0; i < dataTrainRows; i++)
-	{
-		for (int j = 0; j < columns; j++)
-		{
-			trainData[i][j] = data[i][j];
-		}
-	}
-
-	for (int i = 0; i <dataTestRows; i++)
-	{
-		for (int j = 0; j < columns; j++)
-		{
-			testData[i][j] = data[i + dataTrainRows][j];
-		}
-	}
-
-	labelTrainData = trainData[0];
-	labelTestData = testData[0];
-}
-
-float KnnAlgorithm::accuracy()
-{
-	float goodChoice = 0;
-
-	for (int i = 0; i < dataTrainRows; i++)
-	{
-		if (labelTrainData[classify(EuklidesMetric(i))] == labelTrainData[i])
-			goodChoice++;
-	}
-
-	return goodChoice / float(dataTrainRows);
-}
-
-float *KnnAlgorithm::EuklidesMetric(float row)
-{
-	float *metric = (float*)malloc(dataTrainRows * sizeof(float));
-	float amount;
-
-	int myRow = int(row);
-
-	for (int i = 0; i < dataTrainRows; i++)
-	{
-		amount = 0;
-
-		if (i == myRow)
-			continue;
-
-		for (int j = 0; j < columns; j++)
-		{
-			amount = amount + pow(trainData[i][j] - trainData[myRow][j], 2);
-		}
-		metric[i] = sqrt(amount);
-	}
-
-	return metric;
-}
-
-int KnnAlgorithm::classify(float *metric)
-{
-	float min = metric[0];
-	int i = 0;
-
-	for (int i = 1; i < dataTrainRows; i++)
-	{
-		if (metric[i] < min)
-			return i;
-	}
-
-	return i;
+                float difference = *(tr) - *(tst +j);
+                sum = sum + (difference * difference);
+            }
+            // distance is euclidlean metric for current_test_row and i-th train data
+            // if our data is closer to that row from train data update closest_neighbour_distance and and closest_neighbour_index
+            if(sum < closest_neighbour_distance) {
+                closest_neighbour_distance = sum;
+                closest_neighbour_index = i;
+            }
+        }
+        // now we have found closest neightbour and have index of that neighbour in closest_neighbour_index variable
+        // so let's get target class of that neightbour (predicted class) and check if the prediction is accurate
+        if(*(testData+(current_test_row*dataColumns)) == *(trainData+(closest_neighbour_index*dataColumns))) {
+            // if prediction is accurate increment accurate predictions counter
+            accurate_predictions = accurate_predictions + 1;
+        }
+    }
+    //	end = omp_get_wtime();
+ 	//printf("Czas obliczen KnnAlgorytm: %f.\n", end - start);
+    return (accurate_predictions/float(dataTestRows))*100;
 }

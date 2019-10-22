@@ -4,7 +4,11 @@
 #include <stdlib.h>
 #include <fstream>
 #include <sstream>
-
+#include <omp.h>
+#include <time.h>
+#include <cmath>
+#include <omp.h>
+#include <time.h>
 
 
 Preprocessing::Preprocessing()
@@ -16,80 +20,107 @@ Preprocessing::~Preprocessing()
 {
 }
 
-
-float **Preprocessing::Normalization(float **data, int rows, int columns)
+void Preprocessing::Normalization(float *data, int rows, int columns, int numberOfThreads)
 {
+	double start, end;
 	int min = 0, max = 0;
 	int i = 0, j = 0;
+	//start = omp_get_wtime();
 
+	//#pragma omp parallel default(none) private(i, j, min, max) shared(data, rows, columns, nr_threads) num_threads(nr_threads)
+	//#pragma omp for schedule(dynamic, nr_threads)
 
+	//#pragma omp parallel default(none) private(i, j, min, max) shared(data, rows, columns, numberOfThreads) num_threads(numberOfThreads)
+	//#pragma omp for schedule(dynamic, numberOfThreads)
 	for (int i = 1; i < columns-1; i++)
 	{
 		min = 0;
 		max = 0;
 		for (int j = 0; j < rows; j++)
 		{
-			if (data[j][i] < min)
+			if (*(data + i + (j*columns)) < min)
 			{
-				min = data[j][i];
+				min = *(data + (j*columns)+i);
 			}
 
-			if (data[j][i] > max)
+			if (*(data + (j*columns)+i) > max)
 			{
-				max = data[j][i];
+				max = *(data + (j*columns)+i);
 			}
 		}
+
+        float max_min_reciprocal = max - min;
+        if (max_min_reciprocal == 0) {
+            continue;
+        }
+        max_min_reciprocal = 1. / max_min_reciprocal;
 
 		for (int j = 0; j < rows; j++)
 		{
-			if (min != 0 || max != 0)
-				data[j][i] = (data[j][i] - min) / (max - min);
+            *(data + (j*columns)+i) = (*(data + (j*columns)+i) - min) * max_min_reciprocal;
 		}
 	}
 
-	printf("Dane1: %f", data[2500][550]);
-	printf("Dane2: %f", data[500][550]);
+	//end = omp_get_wtime();
 
-	return data;
+	//printf("Czas obliczen normalizacja: %f.\n", end - start);
 }
 
-void Preprocessing::Standarization(float **data, int rows, int columns)
+void Preprocessing::Standarization(float *data, int rows, int columns, int numberOfThreads)
 {
-	float *amount, *variance;
-	int i, j;
+	double start, end;
+	int i = 0, j = 0;
+    float var = 0, ave = 0, amo=0;
+	//start = omp_get_wtime();
 
-	float *average = (float*)malloc(columns * sizeof(float));
-	amount = (float*)malloc(columns * sizeof(float));
-	variance = (float*)malloc(columns * sizeof(float));
+	//#pragma omp parallel default(none) private(i, j, min, max) shared(data, rows, columns, nr_threads) num_threads(nr_threads)
+	//#pragma omp for schedule(dynamic, nr_threads)
 
-	for (i = 0; i < rows; i++)
+    //#pragma omp parallel default(none) private(i, j, variance, average) shared(data, rows, columns, numberOfThreads) num_threads(numberOfThreads)
+
+    //#pragma omp parallel default(none) private(i, j, variance, average) shared(data, rows, columns, numberOfThreads) num_threads(numberOfThreads)
+	//#pragma omp for schedule(dynamic, nr_threads)
+
+
+    //#pragma omp parallel default(none) private(i, j, ave, amo, var) shared(data, rows, columns, numberOfThreads) num_threads(numberOfThreads)
+
+    //start = omp_get_wtime();
+   // #pragma omp parallel default(none) private(i, j, ave, amo, var) shared(data, rows, columns, numberOfThreads) num_threads(numberOfThreads)
+	//#pragma omp for schedule(dynamic, numberOfThreads)
+	for (i = 1; i < columns - 1; i++)
 	{
-		for (j = 1; j < columns; j++)
-		{
-			amount[j] = amount[j] + data[i][j];
+	    amo = 0;
+        ave = 0;
+        var = 0;
+        for (int j = 0; j < rows; j++) {
+            amo = amo + *(data + (j*columns)+i);
+        }
+        ave  = amo / float(rows);
+
+
+        for (int j = 0; j < rows; j++){
+            float factor = *(data + (j*columns)+i) - ave;
+            var = var + (factor * factor);
+        }
+
+		if (var == 0) {
+            for (j = 0; j < rows; j++) {
+                *(data + (j*columns)+i) = *(data + (j*columns)+i) / 255.;
+            }
+            continue;
 		}
-	}
 
-	for (int j = 1; j < columns; j++)
-	{
-		average[j] = amount[j] / 60000;
-	}
+        float sd_reciprocal = 1./sqrt(var);
 
-	for (int i = 0; i < rows; i++)
-	{
-		for (int j = 1; j < columns; j++)
-		{
-			variance[j] = variance[j] + pow(data[i][j] - average[j], 2);
+		for (j = 0; j < rows; j++) {
+            *(data + (j*columns)+i) = (*(data + (j*columns)+i) - ave) * sd_reciprocal;
 		}
+
 	}
 
-	for (int i = 0; i < rows; i++)
-	{
-		for (int j = 1; j < columns; j++)
-		{
-			data[i][j] = (data[i][j] - average[j]) / sqrt(variance[j]);
-		}
-	}
+	//end = omp_get_wtime();
+
+	//printf("Czas obliczen: %f.\n", end - start);
 }
 
 

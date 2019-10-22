@@ -8,6 +8,6 @@ public:
 	LoadCSV();
 	~LoadCSV();
 
-	void myLoad(float **data, int rows, int columns);
+	void myLoad(float *data, int rows, int columns);
 };
 

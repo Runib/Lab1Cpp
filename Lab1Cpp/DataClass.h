@@ -5,10 +5,9 @@ public:
 	DataClass();
 	~DataClass();
 
-	float **data;
+	float *data;
 	int rows = 6000;
-	int columns = 785;
-
-	float *label;
+	int columns = 784;
+	void print_data();
 };
 

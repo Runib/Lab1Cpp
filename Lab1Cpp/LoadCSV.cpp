@@ -4,7 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include "DataClass.h"
-
+#include <stdlib.h>
 
 
 LoadCSV::LoadCSV()
@@ -15,31 +15,32 @@ LoadCSV::LoadCSV()
 LoadCSV::~LoadCSV()
 {
 }
-
-void LoadCSV::myLoad(float **data, int rows, int columns)
+void LoadCSV::myLoad(float *data, int rows, int columns)
 {
 	int i, j, k;
+    string val;
+    string line;
 
 
 	ifstream file("mnist_train.csv");
+	k=0;
 
-	for (i = 0; i < rows; ++i)
+	for (i = 0; i < rows; i++)
 	{
-		string line;
 		getline(file, line);
 		if (!file.good())
 			break;
 		stringstream iss(line);
 
-		for (j = 0; j < columns; ++j)
+		for (j = 0; j < columns; j++)
 		{
-			string val;
+
 			getline(iss, val, ',');
 			if (!iss.good())
 				break;
 
-			stringstream convertor(val);
-			convertor >> data[i][j];
+            *(data+k) = atof(val.c_str());
+            k++;
 		}
 	}
 }
