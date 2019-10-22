@@ -3,6 +3,7 @@
 #include <cmath>
 #include <omp.h>
 #include <time.h>
+#include <stdio.h>
 
 KnnAlgorithm::KnnAlgorithm()
 {
@@ -30,7 +31,7 @@ float KnnAlgorithm::predict(int numberOfThreads) {
     int closest_neighbour_index;
 	float closest_neighbour_distance;
 
-    //start = omp_get_wtime();
+   // start = omp_get_wtime();
     //#pragma omp parallel default(none) private(current_test_row) shared(max_float, numberOfThreads) num_threads(numberOfThreads) reduction(+ : accurate_predictions)
     //#pragma omp for schedule(dynamic, numberOfThreads)
     for (int current_test_row=0; current_test_row < dataTestRows; ++current_test_row) {
@@ -61,7 +62,7 @@ float KnnAlgorithm::predict(int numberOfThreads) {
             accurate_predictions = accurate_predictions + 1;
         }
     }
-    //	end = omp_get_wtime();
+    	//end = omp_get_wtime();
  	//printf("Czas obliczen KnnAlgorytm: %f.\n", end - start);
     return (accurate_predictions/float(dataTestRows))*100;
 }

@@ -25,7 +25,7 @@ void Preprocessing::Normalization(float *data, int rows, int columns, int number
 	double start, end;
 	int min = 0, max = 0;
 	int i = 0, j = 0;
-	//start = omp_get_wtime();
+	start = omp_get_wtime();
 
 	//#pragma omp parallel default(none) private(i, j, min, max) shared(data, rows, columns, nr_threads) num_threads(nr_threads)
 	//#pragma omp for schedule(dynamic, nr_threads)
@@ -61,9 +61,9 @@ void Preprocessing::Normalization(float *data, int rows, int columns, int number
 		}
 	}
 
-	//end = omp_get_wtime();
+	end = omp_get_wtime();
 
-	//printf("Czas obliczen normalizacja: %f.\n", end - start);
+	printf("Czas obliczen normalizacja: %f.\n", end - start);
 }
 
 void Preprocessing::Standarization(float *data, int rows, int columns, int numberOfThreads)
@@ -71,7 +71,7 @@ void Preprocessing::Standarization(float *data, int rows, int columns, int numbe
 	double start, end;
 	int i = 0, j = 0;
     float var = 0, ave = 0, amo=0;
-	//start = omp_get_wtime();
+	start = omp_get_wtime();
 
 	//#pragma omp parallel default(none) private(i, j, min, max) shared(data, rows, columns, nr_threads) num_threads(nr_threads)
 	//#pragma omp for schedule(dynamic, nr_threads)
@@ -118,9 +118,9 @@ void Preprocessing::Standarization(float *data, int rows, int columns, int numbe
 
 	}
 
-	//end = omp_get_wtime();
+	end = omp_get_wtime();
 
-	//printf("Czas obliczen: %f.\n", end - start);
+	printf("Czas obliczen standaryzacja: %f.\n", end - start);
 }
 
 
