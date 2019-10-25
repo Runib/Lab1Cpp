@@ -5,9 +5,9 @@ public:
 	Preprocessing();
 	~Preprocessing();
 
-    void Normalization(float *data, int rows, int columns, int numberOfThreads);
+    void Normalization(float *data, int rows, int columns);
 
-	void Standarization(float *data, int rows, int columns, int numberOfThreads);
+	void Standarization(float *data, int rows, int columns);
 private:
 	float findMin(float data, float currentMin);
 

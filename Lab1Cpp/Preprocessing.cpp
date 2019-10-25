@@ -4,11 +4,10 @@
 #include <stdlib.h>
 #include <fstream>
 #include <sstream>
-#include <omp.h>
 #include <time.h>
 #include <cmath>
-#include <omp.h>
 #include <time.h>
+#include <mpi.h>
 
 
 Preprocessing::Preprocessing()
@@ -20,92 +19,135 @@ Preprocessing::~Preprocessing()
 {
 }
 
-void Preprocessing::Normalization(float *data, int rows, int columns, int numberOfThreads)
+void Preprocessing::Normalization(float *data, int rows, int columns)
 {
-	double start, end;
 	int min = 0, max = 0;
+	int globalMin, globalMax;
 	int i = 0, j = 0;
-	start = omp_get_wtime();
+	double startTime, endTime;
+	int size, rank;
+	int ROOT = 0;
+	int tag = 2;
 
-	#pragma omp parallel default(none) private(i, j, min, max) shared(data, rows, columns, numberOfThreads) num_threads(numberOfThreads)
-	#pragma omp for schedule(dynamic, numberOfThreads)
+	startTime = MPI_Wtime();
+	MPI_Init(NULL, NULL);
+	MPI_Comm_size(MPI_COMM_WORLD, &size);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+	int countRows = rows / size;
+	int sizeToSend = countRows * columns;
+	float *localData = (float*)malloc(countRows * columns * sizeof(float));
+
+	MPI_Scatter(data, sizeToSend, MPI_FLOAT, localData, sizeToSend, MPI_FLOAT,
+		ROOT, MPI_COMM_WORLD);
+
 	for (int i = 1; i < columns-1; i++)
 	{
 		min = 0;
 		max = 0;
-		for (int j = 0; j < rows; j++)
+		for (int j = 0; j < countRows; j++)
 		{
-			if (*(data + i + (j*columns)) < min)
+			if (*(localData + i + (j*columns)) < min)
 			{
-				min = *(data + (j*columns)+i);
+				min = *(localData + (j*columns)+i);
 			}
 
-			if (*(data + (j*columns)+i) > max)
+			if (*(localData + (j*columns)+i) > max)
 			{
-				max = *(data + (j*columns)+i);
+				max = *(localData + (j*columns)+i);
 			}
 		}
 
-        float max_min_reciprocal = max - min;
-        if (max_min_reciprocal == 0) {
-            continue;
-        }
-        max_min_reciprocal = 1. / max_min_reciprocal;
+		MPI_Reduce(&min, &globalMin, 1, MPI_INT, MPI_MIN, ROOT, MPI_COMM_WORLD);
+		MPI_Reduce(&max, &globalMax, 1, MPI_INT, MPI_MAX, ROOT, MPI_COMM_WORLD);
 
-		for (int j = 0; j < rows; j++)
+		float max_min_reciprocal = globalMax - globalMin;
+		if (max_min_reciprocal == 0) {
+			continue;
+		}
+		max_min_reciprocal = 1. / max_min_reciprocal;
+
+		for (int j = 0; j < countRows; j++)
 		{
-            *(data + (j*columns)+i) = (*(data + (j*columns)+i) - min) * max_min_reciprocal;
+			//printf("Procek %d wykonuje\n ", rank);
+			*(data + (j*columns)+i) = (*(localData + (j*columns)+i) - globalMin) * max_min_reciprocal;
 		}
 	}
 
-	end = omp_get_wtime();
+	printf("Procek %d Finished\n ", rank);
+	//MPI_Barrier(MPI_COMM_WORLD);
+	endTime = MPI_Wtime();
 
-	printf("Czas obliczen normalizacja: %f.\n", end - start);
+	MPI_Finalize();
+
+	if (rank == 0)
+		printf("Czas obliczen Normalizacja: %d\n", endTime - startTime);
+
 }
 
-void Preprocessing::Standarization(float *data, int rows, int columns, int numberOfThreads)
+void Preprocessing::Standarization(float *data, int rows, int columns)
 {
-	double start, end;
 	int i = 0, j = 0;
     float var = 0, ave = 0, amo=0;
+	float globalVar, globalEve, globalAmo;
+	double startTime, endTime;
+	int size, rank;
+	int ROOT = 0;
+	int tag = 2;
 
-    start = omp_get_wtime();
-   // #pragma omp parallel default(none) private(i, j, ave, amo, var) shared(data, rows, columns, numberOfThreads) num_threads(numberOfThreads)
-	//#pragma omp for schedule(dynamic, numberOfThreads)
+	startTime = MPI_Wtime();
+	MPI_Init(NULL, NULL);
+	MPI_Comm_size(MPI_COMM_WORLD, &size);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+	int countRows = rows / size;
+	int sizeToSend = countRows * columns;
+	float *localData = (float*)malloc(countRows * columns * sizeof(float));
+
+	MPI_Scatter(data, sizeToSend, MPI_FLOAT, localData, sizeToSend, MPI_FLOAT,
+		ROOT, MPI_COMM_WORLD);
+
 	for (i = 1; i < columns - 1; i++)
 	{
 	    amo = 0;
         ave = 0;
         var = 0;
-        for (int j = 0; j < rows; j++) {
-            amo = amo + *(data + (j*columns)+i);
+        for (int j = 0; j < countRows; j++) {
+            amo = amo + *(localData + (j*columns)+i);
         }
+		MPI_Reduce(&amo, &globalAmo, 1, MPI_FLOAT, MPI_SUM, ROOT, MPI_COMM_WORLD);
         ave  = amo / float(rows);
 
-
-        for (int j = 0; j < rows; j++){
-            float factor = *(data + (j*columns)+i) - ave;
+        for (int j = 0; j < countRows; j++){
+            float factor = *(localData + (j*columns)+i) - ave;
             var = var + (factor * factor);
         }
+		MPI_Reduce(&var, &globalVar, 1, MPI_FLOAT, MPI_SUM, ROOT, MPI_COMM_WORLD);
 
-		if (var == 0) {
-            for (j = 0; j < rows; j++) {
-                *(data + (j*columns)+i) = *(data + (j*columns)+i) / 255.;
+		if (globalVar == 0) {
+            for (j = 0; j < countRows; j++) {
+                *(data + (j*columns)+i) = *(localData + (j*columns)+i) / 255.;
             }
             continue;
 		}
 
-        float sd_reciprocal = 1./sqrt(var);
+        float sd_reciprocal = 1./sqrt(globalVar);
 
-		for (j = 0; j < rows; j++) {
-            *(data + (j*columns)+i) = (*(data + (j*columns)+i) - ave) * sd_reciprocal;
+		for (j = 0; j < countRows; j++) {
+            *(data + (j*columns)+i) = (*(localData + (j*columns)+i) - ave) * sd_reciprocal;
 		}
 
 	}
 
-	end = omp_get_wtime();
+	printf("Procek %d Finished\n ", rank);
+	//MPI_Barrier(MPI_COMM_WORLD);
+	endTime = MPI_Wtime();
 
-	printf("Czas obliczen standaryzacja: %f.\n", end - start);
+	MPI_Finalize();
+
+	if (rank == 0)
+		printf("Czas obliczen Normalizacja: %d\n", endTime - startTime);
+
 }
 
 

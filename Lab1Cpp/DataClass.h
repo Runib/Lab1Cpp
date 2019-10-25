@@ -9,5 +9,6 @@ public:
 	int rows = 6000;
 	int columns = 784;
 	void print_data();
+	void print_data_not_value();
 };
 

@@ -29,3 +29,11 @@ void DataClass::print_data() {
             std::cout << " , i:" << i << " , data:" << *(data+i) << std::endl;
     }
 }
+
+void DataClass::print_data_not_value() {
+    int elements_count = columns * rows;
+    for(int i=0; i<elements_count; i++) {
+            if (*(data+i) > 1 || *(data+i) < 0)
+                printf("Blad w normalizacji: %d, %f\n", i, *(data+i));
+    }
+}
