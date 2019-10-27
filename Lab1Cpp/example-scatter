@@ -1,0 +1,39 @@
+    /***         Example start           ***/
+//    int row_size = 4;
+//    int col_size = 4;
+//    float whole_data_arr  [16] = {1, 1, 1, 1,
+//                                  2, 2, 2, 2,
+//                                  3, 3, 3, 3,
+//                                  4, 4, 4, 4};
+//    float * dataptr = NULL;
+//    float * data_part = (float*)malloc((row_size*col_size/comm_size ) * sizeof(float));
+//    if(rank == 0) {
+//        dataptr = whole_data_arr;
+//    }
+//
+//    MPI_Datatype col, coltype;
+//    MPI_Type_vector(row_size, 1, col_size, MPI_FLOAT, &col);
+//    MPI_Type_commit(&col);
+//    MPI_Type_create_resized(col, 0, 1*sizeof(float), &coltype);
+//    MPI_Type_commit(&coltype);
+//
+//    MPI_Scatter(dataptr, (col_size/comm_size), coltype,
+//                data_part, (col_size/comm_size), coltype,
+//                0, MPI_COMM_WORLD);
+//
+//
+//    for (int p=0; p<comm_size; p++) {
+//        if (rank == p) {
+//            printf("Local process on rank %d is:\n", rank);
+//            for (i=0; i<(col_size/comm_size); i++) {
+//                putchar('|');
+//                for (j=0; j<row_size; j++) {
+//                    printf("%2f ", *(data_part + (j*col_size)+i));
+//
+//                }
+//                printf("|\n");
+//            }
+//        }
+//        MPI_Barrier(MPI_COMM_WORLD);
+//    }
+    /***         Example end           ***/

@@ -24,9 +24,11 @@ DataClass::~DataClass()
 }
 
 void DataClass::print_data() {
-    int elements_count = columns * rows;
-    for(int i=0; i<elements_count; i++) {
-            std::cout << " , i:" << i << " , data:" << *(data+i) << std::endl;
+//    int elements_count = columns * rows;
+    for(int i=0; i<rows; i++) {
+        for(int j=0; j<columns; j++) {
+            std::cout << "i:" << i << " , j:" << j << " , data:" << *(data+i*columns+j) << std::endl;
+        }
     }
 }
 

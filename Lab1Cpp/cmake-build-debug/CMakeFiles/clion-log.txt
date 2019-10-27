@@ -1,0 +1,7 @@
+/home/pawel/clion-2019.2.4/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/pawel/CLionProjects/Lab1Cpp/Lab1Cpp
+-- Found MPI_C: /usr/lib64/openmpi/lib/libmpi.so (found version "3.0") 
+-- Found MPI_CXX: /usr/lib64/openmpi/lib/libmpi_cxx.so (found version "3.0") 
+-- Found MPI: TRUE (found version "3.0")  
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/pawel/CLionProjects/Lab1Cpp/Lab1Cpp/cmake-build-debug
