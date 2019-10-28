@@ -1,29 +1,19 @@
 #pragma once
-class KnnAlgorithm
-{
-public:
-	KnnAlgorithm();
-	~KnnAlgorithm();
+#include "Data.h"
+#include <limits>
+#include <stdio.h>
+#include <mpi.h>
 
-	int columns = 729;
-	int k = 1;
-
-	int dataTrainRows = 4500;
-	int dataTestRows = 1500;
-
-	float **trainData;
-	float **testData;
-
-	float *labelTrainData;
-	float *labelTestData;
-	float accuracy();
-
-	void SplitData(float **data, int percent);
-private:
-	void ShuffleData(float **data);
-
-
-	float *EuklidesMetric(float row);
-	int classify(float *metric);
+class KnnAlgorithm {
+    public:
+        KnnAlgorithm();
+        virtual ~KnnAlgorithm();
+        void fit(Data data, int percent);
+        float predict();
+    private:
+        float *train_data;
+        float *test_data;
+        int train_rows;
+        int test_rows;
+        int columns;
 };
-
