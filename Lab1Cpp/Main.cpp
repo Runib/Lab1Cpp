@@ -26,7 +26,7 @@ int main() {
     KnnAlgorithm knn = KnnAlgorithm();
 
     if (rank == ROOT) {
-        LoadCSV().myLoad("../dataset/mnist_train.csv", ourData.data, ourData.rows, ourData.columns);
+        LoadCSV().myLoad("mnist_train.csv", ourData.data, ourData.rows, ourData.columns);
     }
 	//preprocessing.Normalization(ourData.data, ourData.rows, ourData.columns);
     preprocessing.Standarization(ourData.data, ourData.rows, ourData.columns);
